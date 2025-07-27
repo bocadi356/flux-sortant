@@ -1,0 +1,2003 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COPAG - Gestion des Flux Sortants</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+        }
+        
+        /* Barre de navigation */
+        .navbar {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .navbar-menu {
+            display: flex;
+            list-style: none;
+        }
+        
+        .navbar-menu li {
+            margin-left: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        .navbar-menu li:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .navbar-menu li.active {
+            background-color: var(--secondary-color);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logout-btn {
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 1rem;
+        }
+        
+        /* Contenu principal */
+        .container {
+            padding: 2rem;
+        }
+        
+        /* Onglets */
+        .tabs {
+            display: none;
+        }
+        
+        .tabs.active {
+            display: block;
+        }
+        
+        /* Tableaux */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        /* Statuts */
+        .status-en-cours {
+            background-color: var(--warning-color);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .status-partiel {
+            background-color: #f1c40f;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .status-cloture {
+            background-color: var(--success-color);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        
+        /* Formulaires */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+        
+        .btn-warning {
+            background-color: var(--warning-color);
+        }
+        
+        /* Tableau de bord */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card h3 {
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card p {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        /* Graphiques */
+        .chart-container {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .chart-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .chart-box {
+            flex: 1;
+            background-color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Recherche avancée */
+        .search-form {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .search-fields {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+        
+        /* Authentification */
+        .auth-container {
+            max-width: 400px;
+            margin: 5rem auto;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .auth-container h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+        
+        .auth-btn {
+            width: 100%;
+            padding: 0.75rem;
+            margin-top: 1rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .search-fields {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .stats-container, .search-fields {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-row {
+                flex-direction: column;
+            }
+            
+            .navbar-menu {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Écran de connexion -->
+    <div id="login-screen" class="auth-container">
+        <h2>Connexion</h2>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="username">Nom d'utilisateur</label>
+                <input type="text" id="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" required>
+            </div>
+            <button type="submit" class="auth-btn">Se connecter</button>
+        </form>
+    </div>
+
+    <!-- Interface principale (cachée par défaut) -->
+    <div id="app" style="display: none;">
+        <nav class="navbar">
+            <div class="navbar-brand">COPAG - Gestion des Flux Sortants</div>
+            <ul class="navbar-menu">
+                <li data-tab="dashboard" class="active">Tableau de bord</li>
+                <li data-tab="sorties">Gestion des Sorties</li>
+                <li data-tab="retours">Gestion des Retours</li>
+                <li data-tab="etat">État des Articles</li>
+                <li data-tab="admin" id="admin-tab" style="display: none;">Administration</li>
+            </ul>
+            <div class="user-info">
+                <span id="current-user"></span>
+                <button class="logout-btn">Déconnexion</button>
+            </div>
+        </nav>
+
+        <div class="container">
+            <!-- Tableau de bord -->
+            <div id="dashboard" class="tabs active">
+                <h2>Tableau de Bord</h2>
+                
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <h3>Quantité Totale Sortie</h3>
+                        <p id="total-sortie">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Quantité Totale Retournée</h3>
+                        <p id="total-retour">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Solde Total</h3>
+                        <p id="solde-total">0</p>
+                    </div>
+                </div>
+                
+                <div class="chart-row">
+                    <div class="chart-box">
+                        <h3>Statistiques des Sorties par Mois</h3>
+                        <canvas id="sorties-chart"></canvas>
+                    </div>
+                    <div class="chart-box">
+                        <h3>Statistiques des Retours par Mois</h3>
+                        <canvas id="retours-chart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-row">
+                    <div class="chart-box">
+                        <h3>Sorties par Magasin</h3>
+                        <canvas id="magasin-chart"></canvas>
+                    </div>
+                    <div class="chart-box">
+                        <h3>Statut des Articles</h3>
+                        <canvas id="statut-chart"></canvas>
+                    </div>
+                </div>
+                
+                <h3>Activités Récentes</h3>
+                <table id="recent-activities">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Désignation</th>
+                            <th>Quantité</th>
+                            <th>Responsable</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- Gestion des Sorties -->
+            <div id="sorties" class="tabs">
+                <h2>Gestion des Sorties</h2>
+                
+                <div class="search-form">
+                    <h3>Recherche Avancée</h3>
+                    <div class="search-fields">
+                        <div class="form-group">
+                            <label for="search-date-sortie">Date de Sortie</label>
+                            <input type="date" id="search-date-sortie">
+                        </div>
+                        <div class="form-group">
+                            <label for="search-magasin">Magasin</label>
+                            <select id="search-magasin">
+                                <option value="">Tous</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="search-designation">Désignation</label>
+                            <input type="text" id="search-designation">
+                        </div>
+                        <div class="form-group">
+                            <label for="search-responsable">Responsable</label>
+                            <input type="text" id="search-responsable">
+                        </div>
+                    </div>
+                    <button id="search-sorties-btn">Rechercher</button>
+                    <button id="reset-search-sorties-btn" style="background-color: var(--light-color); color: var(--dark-color);">Réinitialiser</button>
+                </div>
+                
+                <button id="add-sortie-btn">Ajouter une Sortie</button>
+                
+                <table id="sorties-table">
+                    <thead>
+                        <tr>
+                            <th>Date de Sortie</th>
+                            <th>Magasin</th>
+                            <th>Responsable</th>
+                            <th>Désignation</th>
+                            <th>Référence</th>
+                            <th>Quantité</th>
+                            <th>N° Bon de Sortie</th>
+                            <th>Destination</th>
+                            <th>Motif</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- Gestion des Retours -->
+            <div id="retours" class="tabs">
+                <h2>Gestion des Retours</h2>
+                
+                <div class="search-form">
+                    <h3>Recherche Avancée</h3>
+                    <div class="search-fields">
+                        <div class="form-group">
+                            <label for="search-date-retour">Date de Retour</label>
+                            <input type="date" id="search-date-retour">
+                        </div>
+                        <div class="form-group">
+                            <label for="search-magasin-retour">Magasin</label>
+                            <select id="search-magasin-retour">
+                                <option value="">Tous</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="search-designation-retour">Désignation</label>
+                            <input type="text" id="search-designation-retour">
+                        </div>
+                        <div class="form-group">
+                            <label for="search-responsable-retour">Responsable</label>
+                            <input type="text" id="search-responsable-retour">
+                        </div>
+                    </div>
+                    <button id="search-retours-btn">Rechercher</button>
+                    <button id="reset-search-retours-btn" style="background-color: var(--light-color); color: var(--dark-color);">Réinitialiser</button>
+                </div>
+                
+                <button id="add-retour-btn">Ajouter un Retour</button>
+                
+                <table id="retours-table">
+                    <thead>
+                        <tr>
+                            <th>Date de Sortie</th>
+                            <th>Date de Retour</th>
+                            <th>Magasin</th>
+                            <th>Responsable</th>
+                            <th>Désignation</th>
+                            <th>Quantité Sortie</th>
+                            <th>Quantité Retournée</th>
+                            <th>Solde</th>
+                            <th>Durée (jours)</th>
+                            <th>N° Bon de Livraison</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- État des Articles -->
+            <div id="etat" class="tabs">
+                <h2>État des Articles en Cours</h2>
+                
+                <div class="search-form">
+                    <h3>Filtres</h3>
+                    <div class="search-fields">
+                        <div class="form-group">
+                            <label for="filter-magasin-etat">Magasin</label>
+                            <select id="filter-magasin-etat">
+                                <option value="">Tous</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filter-responsable-etat">Responsable</label>
+                            <input type="text" id="filter-responsable-etat">
+                        </div>
+                        <div class="form-group">
+                            <label for="filter-statut-etat">Statut</label>
+                            <select id="filter-statut-etat">
+                                <option value="">Tous</option>
+                                <option value="en cours">En cours</option>
+                                <option value="partiel">Partiel</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filter-mois-etat">Mois</label>
+                            <select id="filter-mois-etat">
+                                <option value="">Tous</option>
+                                <option value="1">Janvier</option>
+                                <option value="2">Février</option>
+                                <option value="3">Mars</option>
+                                <option value="4">Avril</option>
+                                <option value="5">Mai</option>
+                                <option value="6">Juin</option>
+                                <option value="7">Juillet</option>
+                                <option value="8">Août</option>
+                                <option value="9">Septembre</option>
+                                <option value="10">Octobre</option>
+                                <option value="11">Novembre</option>
+                                <option value="12">Décembre</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="search-fields">
+                        <div class="form-group">
+                            <label for="filter-date-debut">Date de début</label>
+                            <input type="date" id="filter-date-debut">
+                        </div>
+                        <div class="form-group">
+                            <label for="filter-date-fin">Date de fin</label>
+                            <input type="date" id="filter-date-fin">
+                        </div>
+                        <div class="form-group">
+                            <label for="filter-duree-etat">Durée (jours)</label>
+                            <select id="filter-duree-etat">
+                                <option value="">Tous</option>
+                                <option value="7">Moins de 7 jours</option>
+                                <option value="30">Moins de 30 jours</option>
+                                <option value="90">Moins de 90 jours</option>
+                                <option value="90+">Plus de 90 jours</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button id="apply-filters-btn">Appliquer</button>
+                    <button id="reset-filters-btn" style="background-color: var(--light-color); color: var(--dark-color);">Réinitialiser</button>
+                </div>
+                
+                <table id="etat-table">
+                    <thead>
+                        <tr>
+                            <th>Date de Sortie</th>
+                            <th>Magasin</th>
+                            <th>Responsable</th>
+                            <th>Désignation</th>
+                            <th>Référence</th>
+                            <th>Quantité Sortie</th>
+                            <th>Quantité Retournée</th>
+                            <th>Solde</th>
+                            <th>Durée (jours)</th>
+                            <th>Destination</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- Administration -->
+            <div id="admin" class="tabs">
+                <h2>Administration des Utilisateurs</h2>
+                
+                <button id="add-user-btn">Ajouter un Utilisateur</button>
+                
+                <table id="users-table">
+                    <thead>
+                        <tr>
+                            <th>Nom d'utilisateur</th>
+                            <th>Rôle</th>
+                            <th>Dernière Connexion</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Modals -->
+        <div id="modal-backdrop" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;"></div>
+        
+        <!-- Modal Ajout/Modification Sortie -->
+        <div id="sortie-modal" class="modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 2rem; border-radius: 8px; z-index: 1001; width: 80%; max-width: 800px;">
+            <h2 id="sortie-modal-title">Ajouter une Sortie</h2>
+            <form id="sortie-form">
+                <input type="hidden" id="sortie-id">
+                <div class="search-fields">
+                    <div class="form-group">
+                        <label for="modal-date-sortie">Date de Sortie</label>
+                        <input type="date" id="modal-date-sortie" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="modal-magasin">Magasin</label>
+                        <select id="modal-magasin" required>
+                            <option value="">Sélectionner</option>
+                            <option value="Magasin PDR">Magasin PDR</option>
+                            <option value="PET FOOD">PET FOOD</option>
+                            <option value="VOLAILLE">VOLAILLE</option>
+                            <option value="PDR Usagées">PDR Usagées</option>
+                            <option value="MATIERE PREMIERE">MATIERE PREMIERE</option>
+                            <option value="CHARCUTRIE">CHARCUTRIE</option>
+                            <option value="EXPEDITION">EXPEDITION</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="modal-responsable">Responsable</label>
+                        <input type="text" id="modal-responsable" required>
+                    </div>
+                </div>
+                <div class="search-fields">
+                    <div class="form-group">
+                        <label for="modal-designation">Désignation</label>
+                        <input type="text" id="modal-designation" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="modal-reference">Référence</label>
+                        <input type="text" id="modal-reference" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="modal-quantite">Quantité</label>
+                        <input type="number" id="modal-quantite" required min="1">
+                    </div>
+                </div>
+                <div class="search-fields">
+                    <div class="form-group">
+                        <label for="modal-unite">Unité de Mesure</label>
+                        <select id="modal-unite" required>
+                            <option value="">Sélectionner</option>
+                            <option value="Pièce">Pièce</option>
+                            <option value="Kg">Kg</option>
+                            <option value="Litre">Litre</option>
+                            <option value="Mètre">Mètre</option>
+                            <option value="Paquet">Paquet</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="modal-bon-sortie">N° Bon de Sortie</label>
+                        <input type="text" id="modal-bon-sortie" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="modal-destination">Destination</label>
+                        <input type="text" id="modal-destination" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="modal-motif">Motif</label>
+                    <textarea id="modal-motif" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="modal-controleur">Contrôleur de Sortie</label>
+                    <input type="text" id="modal-controleur" required>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem;">
+                    <button type="button" id="cancel-sortie-btn" style="background-color: var(--light-color); color: var(--dark-color);">Annuler</button>
+                    <button type="submit" id="save-sortie-btn">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Modal Ajout/Modification Retour -->
+        <div id="retour-modal" class="modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 2rem; border-radius: 8px; z-index: 1001; width: 80%; max-width: 800px;">
+            <h2 id="retour-modal-title">Ajouter un Retour</h2>
+            <form id="retour-form">
+                <input type="hidden" id="retour-id">
+                <div class="search-fields">
+                    <div class="form-group">
+                        <label for="modal-sortie-id">Sortie Associée</label>
+                        <select id="modal-sortie-id" required>
+                            <option value="">Sélectionner une sortie</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="modal-date-retour">Date de Retour</label>
+                        <input type="date" id="modal-date-retour" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="modal-bon-livraison">N° Bon de Livraison</label>
+                        <input type="text" id="modal-bon-livraison" required>
+                    </div>
+                </div>
+                <div class="search-fields">
+                    <div class="form-group">
+                        <label for="modal-quantite-retour">Quantité Retournée</label>
+                        <input type="number" id="modal-quantite-retour" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="modal-remarques">Remarques</label>
+                        <input type="text" id="modal-remarques">
+                    </div>
+                    <div class="form-group">
+                        <label for="modal-controleur-retour">Contrôleur de Réception</label>
+                        <input type="text" id="modal-controleur-retour" required>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem;">
+                    <button type="button" id="cancel-retour-btn" style="background-color: var(--light-color); color: var(--dark-color);">Annuler</button>
+                    <button type="submit" id="save-retour-btn">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Modal Utilisateur -->
+        <div id="user-modal" class="modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 2rem; border-radius: 8px; z-index: 1001; width: 80%; max-width: 500px;">
+            <h2 id="user-modal-title">Ajouter un Utilisateur</h2>
+            <form id="user-form">
+                <input type="hidden" id="user-id">
+                <div class="form-group">
+                    <label for="modal-username">Nom d'utilisateur</label>
+                    <input type="text" id="modal-username" required>
+                </div>
+                <div class="form-group">
+                    <label for="modal-password">Mot de passe</label>
+                    <input type="password" id="modal-password">
+                </div>
+                <div class="form-group">
+                    <label for="modal-role">Rôle</label>
+                    <select id="modal-role" required>
+                        <option value="user">Utilisateur</option>
+                        <option value="admin">Administrateur</option>
+                    </select>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem;">
+                    <button type="button" id="cancel-user-btn" style="background-color: var(--light-color); color: var(--dark-color);">Annuler</button>
+                    <button type="submit" id="save-user-btn">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Données de l'application
+        const appData = {
+            currentUser: null,
+            users: [
+                { id: 1, username: 'admin', password: 'admin123', role: 'admin', lastLogin: null },
+                { id: 2, username: 'user1', password: 'user1123', role: 'user', lastLogin: null }
+            ],
+            magasins: ['MAGASIN PDR', 'PET FOOD', 'VOLAILLE', 'PDR Usagées', 'MATIERE PREMIERE', 'CHARCUTRIE', 'EXPEDITION'],
+            sorties: [],
+            retours: [],
+            activites: []
+        };
+
+        // Initialisation de l'application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Charger les données depuis le localStorage si elles existent
+            loadData();
+            
+            // Gestion de la connexion
+            const loginForm = document.getElementById('login-form');
+            loginForm.addEventListener('submit', handleLogin);
+            
+            // Gestion de la déconnexion
+            const logoutBtn = document.querySelector('.logout-btn');
+            logoutBtn.addEventListener('click', handleLogout);
+            
+            // Navigation entre les onglets
+            const tabLinks = document.querySelectorAll('.navbar-menu li');
+            tabLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    // Retirer la classe active de tous les onglets
+                    tabLinks.forEach(l => l.classList.remove('active'));
+                    document.querySelectorAll('.tabs').forEach(tab => tab.classList.remove('active'));
+                    
+                    // Ajouter la classe active à l'onglet sélectionné
+                    this.classList.add('active');
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Initialiser les boutons et les formulaires
+            initSorties();
+            initRetours();
+            initEtat();
+            initAdmin();
+            
+            // Si des données de test sont nécessaires
+            if (appData.sorties.length === 0) {
+                generateTestData();
+            }
+        });
+
+        // Fonctions de gestion des données
+        function loadData() {
+            const savedData = localStorage.getItem('copagMaterialData');
+            if (savedData) {
+                const parsedData = JSON.parse(savedData);
+                Object.assign(appData, parsedData);
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('copagMaterialData', JSON.stringify(appData));
+        }
+
+        function generateTestData() {
+            // Générer des données de test pour les sorties
+            const designations = [
+                'Moteur électrique 5kW',
+                'Pompe hydraulique',
+                'Ventilateur industriel',
+                'Courroie de transmission',
+                'Roulement à billes',
+                'Capteur de température',
+                'Variateur de fréquence'
+            ];
+            
+            const destinations = [
+                'Fournisseur A',
+                'Fournisseur B',
+                'Fournisseur C',
+                'Atelier interne'
+            ];
+            
+            const motifs = [
+                'Réparation',
+                'Modification',
+                'Contrôle technique',
+                'Remplacement'
+            ];
+            
+            const controleurs = [
+                'Smail RAZZOUKI',
+                'Nezha LACHGUER',
+                'Walid BENJRAIF',
+                'Abderrahim LACHGAR'
+            ];
+            
+            const responsables = [
+                'Mohamed Amine',
+                'Hassan Rami',
+                'Khalid Said',
+                'Nadia Fahd'
+            ];
+            
+            // Générer 20 sorties aléatoires
+            for (let i = 1; i <= 20; i++) {
+                const dateSortie = new Date();
+                dateSortie.setDate(dateSortie.getDate() - Math.floor(Math.random() * 60));
+                
+                const sortie = {
+                    id: i,
+                    dateSortie: dateSortie.toISOString().split('T')[0],
+                    magasin: appData.magasins[Math.floor(Math.random() * appData.magasins.length)],
+                    responsable: responsables[Math.floor(Math.random() * responsables.length)],
+                    designation: designations[Math.floor(Math.random() * designations.length)],
+                    reference: `REF-${Math.floor(1000 + Math.random() * 9000)}`,
+                    quantite: Math.floor(1 + Math.random() * 10),
+                    unite: ['Pièce', 'Kg', 'Litre', 'Mètre', 'Paquet'][Math.floor(Math.random() * 5)],
+                    bonSortie: `BS-${dateSortie.getFullYear()}${(dateSortie.getMonth() + 1).toString().padStart(2, '0')}${i.toString().padStart(3, '0')}`,
+                    destination: destinations[Math.floor(Math.random() * destinations.length)],
+                    motif: motifs[Math.floor(Math.random() * motifs.length)],
+                    controleurSortie: controleurs[Math.floor(Math.random() * controleurs.length)],
+                    statut: 'en cours'
+                };
+                
+                appData.sorties.push(sortie);
+                
+                // Ajouter à l'historique des activités
+                appData.activites.push({
+                    date: sortie.dateSortie,
+                    type: 'sortie',
+                    designation: sortie.designation,
+                    quantite: sortie.quantite,
+                    responsable: sortie.responsable,
+                    details: `Sortie vers ${sortie.destination}`
+                });
+                
+                // Pour certaines sorties, générer des retours
+                if (i % 3 === 0 || i % 5 === 0) {
+                    const dateRetour = new Date(dateSortie);
+                    dateRetour.setDate(dateRetour.getDate() + Math.floor(7 + Math.random() * 30));
+                    
+                    const quantiteRetournee = Math.floor(sortie.quantite * (0.3 + Math.random() * 0.7));
+                    const solde = sortie.quantite - quantiteRetournee;
+                    
+                    const retour = {
+                        id: i,
+                        sortieId: sortie.id,
+                        dateRetour: dateRetour.toISOString().split('T')[0],
+                        bonLivraison: `BL-${dateRetour.getFullYear()}${(dateRetour.getMonth() + 1).toString().padStart(2, '0')}${i.toString().padStart(3, '0')}`,
+                        quantiteRetournee: quantiteRetournee,
+                        solde: solde,
+                        duree: Math.floor((new Date(dateRetour) - new Date(dateSortie)) / (1000 * 60 * 60 * 24)),
+                        remarques: ['OK', 'Contrôle passé', 'Modifié selon spécifications'][Math.floor(Math.random() * 3)],
+                        controleurReception: controleurs[Math.floor(Math.random() * controleurs.length)],
+                        statut: solde === 0 ? 'clôturé' : 'partiel'
+                    };
+                    
+                    appData.retours.push(retour);
+                    
+                    // Mettre à jour le statut de la sortie
+                    sortie.statut = retour.statut;
+                    
+                    // Ajouter à l'historique des activités
+                    appData.activites.push({
+                        date: retour.dateRetour,
+                        type: 'retour',
+                        designation: sortie.designation,
+                        quantite: retour.quantiteRetournee,
+                        responsable: retour.controleurReception,
+                        details: `Retour de ${retour.quantiteRetournee} ${sortie.unite}`
+                    });
+                }
+            }
+            
+            // Trier les activités par date
+            appData.activites.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            saveData();
+        }
+
+        // Fonctions d'authentification
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            const user = appData.users.find(u => u.username === username && u.password === password);
+            
+            if (user) {
+                // Mettre à jour la dernière connexion
+                user.lastLogin = new Date().toISOString();
+                saveData();
+                
+                // Stocker l'utilisateur courant
+                appData.currentUser = user;
+                
+                // Masquer l'écran de connexion et afficher l'application
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app').style.display = 'block';
+                
+                // Afficher le nom de l'utilisateur
+                document.getElementById('current-user').textContent = user.username;
+                
+                // Afficher/masquer l'onglet admin selon le rôle
+                if (user.role === 'admin') {
+                    document.getElementById('admin-tab').style.display = 'block';
+                } else {
+                    document.getElementById('admin-tab').style.display = 'none';
+                }
+                
+                // Actualiser les données affichées
+                refreshDashboard();
+                refreshSortiesTable();
+                refreshRetoursTable();
+                refreshEtatTable();
+                refreshUsersTable();
+            } else {
+                alert('Nom d\'utilisateur ou mot de passe incorrect');
+            }
+        }
+
+        function handleLogout() {
+            appData.currentUser = null;
+            document.getElementById('login-screen').style.display = 'block';
+            document.getElementById('app').style.display = 'none';
+            document.getElementById('login-form').reset();
+        }
+
+        // Fonctions pour le tableau de bord
+        function refreshDashboard() {
+            // Calculer les statistiques
+            const totalSortie = appData.sorties.reduce((sum, sortie) => sum + sortie.quantite, 0);
+            const totalRetour = appData.retours.reduce((sum, retour) => sum + retour.quantiteRetournee, 0);
+            const soldeTotal = totalSortie - totalRetour;
+            
+            // Mettre à jour les affichages
+            document.getElementById('total-sortie').textContent = totalSortie;
+            document.getElementById('total-retour').textContent = totalRetour;
+            document.getElementById('solde-total').textContent = soldeTotal;
+            
+            // Mettre à jour les graphiques
+            updateCharts();
+            
+            // Mettre à jour les activités récentes
+            const recentActivities = appData.activites.slice(0, 10);
+            const activitiesTbody = document.querySelector('#recent-activities tbody');
+            activitiesTbody.innerHTML = '';
+            
+            recentActivities.forEach(activity => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${activity.date}</td>
+                    <td>${activity.type === 'sortie' ? 'Sortie' : 'Retour'}</td>
+                    <td>${activity.designation}</td>
+                    <td>${activity.quantite}</td>
+                    <td>${activity.responsable}</td>
+                `;
+                
+                activitiesTbody.appendChild(row);
+            });
+        }
+
+        function updateCharts() {
+            // Données pour les graphiques par mois
+            const sortiesParMois = {};
+            const retoursParMois = {};
+            const sortiesParMagasin = {};
+            const statuts = { 'en cours': 0, 'partiel': 0, 'clôturé': 0 };
+            
+            appData.sorties.forEach(sortie => {
+                const date = new Date(sortie.dateSortie);
+                const moisAnnee = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+                
+                if (!sortiesParMois[moisAnnee]) {
+                    sortiesParMois[moisAnnee] = 0;
+                }
+                sortiesParMois[moisAnnee] += sortie.quantite;
+                
+                if (!sortiesParMagasin[sortie.magasin]) {
+                    sortiesParMagasin[sortie.magasin] = 0;
+                }
+                sortiesParMagasin[sortie.magasin] += sortie.quantite;
+                
+                statuts[sortie.statut]++;
+            });
+            
+            appData.retours.forEach(retour => {
+                const date = new Date(retour.dateRetour);
+                const moisAnnee = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+                
+                if (!retoursParMois[moisAnnee]) {
+                    retoursParMois[moisAnnee] = 0;
+                }
+                retoursParMois[moisAnnee] += retour.quantiteRetournee;
+            });
+            
+            // Trier les mois
+            const allMonths = Array.from(new Set([
+                ...Object.keys(sortiesParMois),
+                ...Object.keys(retoursParMois)
+            ])).sort();
+            
+            const labels = allMonths.map(m => {
+                const [annee, mois] = m.split('-');
+                return `${mois}/${annee}`;
+            });
+            
+            const sortiesData = allMonths.map(m => sortiesParMois[m] || 0);
+            const retoursData = allMonths.map(m => retoursParMois[m] || 0);
+            
+            // Graphique des sorties
+            const sortiesCtx = document.getElementById('sorties-chart').getContext('2d');
+            
+            if (window.sortiesChart) {
+                window.sortiesChart.destroy();
+            }
+            
+            window.sortiesChart = new Chart(sortiesCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Quantité sortie',
+                        data: sortiesData,
+                        backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // Graphique des retours
+            const retoursCtx = document.getElementById('retours-chart').getContext('2d');
+            
+            if (window.retoursChart) {
+                window.retoursChart.destroy();
+            }
+            
+            window.retoursChart = new Chart(retoursCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Quantité retournée',
+                        data: retoursData,
+                        backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                        borderColor: 'rgba(46, 204, 113, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // Graphique des sorties par magasin
+            const magasinCtx = document.getElementById('magasin-chart').getContext('2d');
+            
+            if (window.magasinChart) {
+                window.magasinChart.destroy();
+            }
+            
+            window.magasinChart = new Chart(magasinCtx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(sortiesParMagasin),
+                    datasets: [{
+                        data: Object.values(sortiesParMagasin),
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(153, 102, 255, 0.7)',
+                            'rgba(255, 159, 64, 0.7)',
+                            'rgba(199, 199, 199, 0.7)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true
+                }
+            });
+            
+            // Graphique des statuts
+            const statutCtx = document.getElementById('statut-chart').getContext('2d');
+            
+            if (window.statutChart) {
+                window.statutChart.destroy();
+            }
+            
+            window.statutChart = new Chart(statutCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['En cours', 'Partiel', 'Clôturé'],
+                    datasets: [{
+                        data: [statuts['en cours'], statuts['partiel'], statuts['clôturé']],
+                        backgroundColor: [
+                            'rgba(241, 196, 15, 0.7)',
+                            'rgba(243, 156, 18, 0.7)',
+                            'rgba(39, 174, 96, 0.7)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true
+                }
+            });
+        }
+
+        // Fonctions pour la gestion des sorties
+        function initSorties() {
+            // Remplir les options de magasin
+            const magasinSelects = document.querySelectorAll('select[id$="magasin"]');
+            magasinSelects.forEach(select => {
+                select.innerHTML = '<option value="">Tous</option>' + 
+                    appData.magasins.map(m => `<option value="${m}">${m}</option>`).join('');
+            });
+            
+            // Bouton d'ajout de sortie
+            document.getElementById('add-sortie-btn').addEventListener('click', () => {
+                showSortieModal();
+            });
+            
+            // Bouton de recherche
+            document.getElementById('search-sorties-btn').addEventListener('click', () => {
+                const filters = {
+                    dateSortie: document.getElementById('search-date-sortie').value,
+                    magasin: document.getElementById('search-magasin').value,
+                    designation: document.getElementById('search-designation').value,
+                    responsable: document.getElementById('search-responsable').value
+                };
+                refreshSortiesTable(filters);
+            });
+            
+            // Bouton de réinitialisation
+            document.getElementById('reset-search-sorties-btn').addEventListener('click', () => {
+                document.querySelectorAll('#sorties .search-form input, #sorties .search-form select').forEach(el => {
+                    el.value = '';
+                });
+                refreshSortiesTable();
+            });
+            
+            // Gestion du formulaire de sortie
+            document.getElementById('sortie-form').addEventListener('submit', handleSaveSortie);
+            
+            // Bouton d'annulation
+            document.getElementById('cancel-sortie-btn').addEventListener('click', hideModal);
+        }
+
+        function refreshSortiesTable(filter = {}) {
+            const tbody = document.querySelector('#sorties-table tbody');
+            tbody.innerHTML = '';
+            
+            // Appliquer les filtres
+            let filteredSorties = [...appData.sorties];
+            
+            if (filter.dateSortie) {
+                filteredSorties = filteredSorties.filter(s => s.dateSortie === filter.dateSortie);
+            }
+            
+            if (filter.magasin) {
+                filteredSorties = filteredSorties.filter(s => s.magasin === filter.magasin);
+            }
+            
+            if (filter.designation) {
+                filteredSorties = filteredSorties.filter(s => 
+                    s.designation.toLowerCase().includes(filter.designation.toLowerCase()));
+            }
+            
+            if (filter.responsable) {
+                filteredSorties = filteredSorties.filter(s => 
+                    s.responsable.toLowerCase().includes(filter.responsable.toLowerCase()));
+            }
+            
+            // Trier par date de sortie (du plus récent au plus ancien)
+            filteredSorties.sort((a, b) => new Date(b.dateSortie) - new Date(a.dateSortie));
+            
+            // Remplir le tableau
+            filteredSorties.forEach(sortie => {
+                const row = document.createElement('tr');
+                
+                // Trouver les retours associés pour déterminer le statut
+                const retoursAssocies = appData.retours.filter(r => r.sortieId === sortie.id);
+                let statut = sortie.statut;
+                let statutClass = 'status-en-cours';
+                
+                if (statut === 'partiel') {
+                    statutClass = 'status-partiel';
+                } else if (statut === 'clôturé') {
+                    statutClass = 'status-cloture';
+                }
+                
+                row.innerHTML = `
+                    <td>${sortie.dateSortie}</td>
+                    <td>${sortie.magasin}</td>
+                    <td>${sortie.responsable}</td>
+                    <td>${sortie.designation}</td>
+                    <td>${sortie.reference}</td>
+                    <td>${sortie.quantite} ${sortie.unite}</td>
+                    <td>${sortie.bonSortie}</td>
+                    <td>${sortie.destination}</td>
+                    <td>${sortie.motif}</td>
+                    <td><span class="${statutClass}">${statut}</span></td>
+                    <td>
+                        <button class="edit-sortie" data-id="${sortie.id}">Modifier</button>
+                        <button class="delete-sortie btn-danger" data-id="${sortie.id}">Supprimer</button>
+                        <button class="add-retour" data-id="${sortie.id}">Ajouter Retour</button>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+            
+            // Ajouter les événements aux boutons
+            document.querySelectorAll('.edit-sortie').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const sortieId = parseInt(this.getAttribute('data-id'));
+                    showSortieModal(sortieId);
+                });
+            });
+            
+            document.querySelectorAll('.delete-sortie').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const sortieId = parseInt(this.getAttribute('data-id'));
+                    if (confirm('Êtes-vous sûr de vouloir supprimer cette sortie ?')) {
+                        deleteSortie(sortieId);
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.add-retour').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const sortieId = parseInt(this.getAttribute('data-id'));
+                    showRetourModal(sortieId);
+                });
+            });
+        }
+
+        function deleteSortie(sortieId) {
+            // Supprimer les retours associés
+            appData.retours = appData.retours.filter(r => r.sortieId !== sortieId);
+            
+            // Supprimer la sortie
+            const index = appData.sorties.findIndex(s => s.id === sortieId);
+            if (index !== -1) {
+                appData.sorties.splice(index, 1);
+            }
+            
+            saveData();
+            refreshSortiesTable();
+            refreshRetoursTable();
+            refreshEtatTable();
+            refreshDashboard();
+        }
+
+        function showSortieModal(sortieId = null) {
+            const modal = document.getElementById('sortie-modal');
+            const backdrop = document.getElementById('modal-backdrop');
+            const title = document.getElementById('sortie-modal-title');
+            const form = document.getElementById('sortie-form');
+            
+            if (sortieId) {
+                // Mode édition
+                title.textContent = 'Modifier la Sortie';
+                const sortie = appData.sorties.find(s => s.id === sortieId);
+                
+                if (sortie) {
+                    document.getElementById('sortie-id').value = sortie.id;
+                    document.getElementById('modal-date-sortie').value = sortie.dateSortie;
+                    document.getElementById('modal-magasin').value = sortie.magasin;
+                    document.getElementById('modal-responsable').value = sortie.responsable;
+                    document.getElementById('modal-designation').value = sortie.designation;
+                    document.getElementById('modal-reference').value = sortie.reference;
+                    document.getElementById('modal-quantite').value = sortie.quantite;
+                    document.getElementById('modal-unite').value = sortie.unite;
+                    document.getElementById('modal-bon-sortie').value = sortie.bonSortie;
+                    document.getElementById('modal-destination').value = sortie.destination;
+                    document.getElementById('modal-motif').value = sortie.motif;
+                    document.getElementById('modal-controleur').value = sortie.controleurSortie;
+                }
+            } else {
+                // Mode ajout
+                title.textContent = 'Ajouter une Sortie';
+                form.reset();
+                document.getElementById('sortie-id').value = '';
+                document.getElementById('modal-date-sortie').value = new Date().toISOString().split('T')[0];
+            }
+            
+            // Afficher le modal
+            modal.style.display = 'block';
+            backdrop.style.display = 'block';
+        }
+
+        function handleSaveSortie(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const sortieId = form.querySelector('#sortie-id').value;
+            const isEdit = !!sortieId;
+            
+            const sortieData = {
+                dateSortie: form.querySelector('#modal-date-sortie').value,
+                magasin: form.querySelector('#modal-magasin').value,
+                responsable: form.querySelector('#modal-responsable').value,
+                designation: form.querySelector('#modal-designation').value,
+                reference: form.querySelector('#modal-reference').value,
+                quantite: parseInt(form.querySelector('#modal-quantite').value),
+                unite: form.querySelector('#modal-unite').value,
+                bonSortie: form.querySelector('#modal-bon-sortie').value,
+                destination: form.querySelector('#modal-destination').value,
+                motif: form.querySelector('#modal-motif').value,
+                controleurSortie: form.querySelector('#modal-controleur').value,
+                statut: 'en cours'
+            };
+            
+            if (isEdit) {
+                // Mise à jour de la sortie existante
+                const index = appData.sorties.findIndex(s => s.id === parseInt(sortieId));
+                if (index !== -1) {
+                    appData.sorties[index] = { ...appData.sorties[index], ...sortieData };
+                }
+            } else {
+                // Ajout d'une nouvelle sortie
+                const newId = appData.sorties.length > 0 ? 
+                    Math.max(...appData.sorties.map(s => s.id)) + 1 : 1;
+                
+                const newSortie = {
+                    id: newId,
+                    ...sortieData
+                };
+                
+                appData.sorties.push(newSortie);
+                
+                // Ajouter à l'historique des activités
+                appData.activites.unshift({
+                    date: newSortie.dateSortie,
+                    type: 'sortie',
+                    designation: newSortie.designation,
+                    quantite: newSortie.quantite,
+                    responsable: newSortie.responsable,
+                    details: `Sortie vers ${newSortie.destination}`
+                });
+            }
+            
+            saveData();
+            refreshSortiesTable();
+            refreshDashboard();
+            refreshEtatTable();
+            hideModal();
+        }
+
+        // Fonctions pour la gestion des retours
+        function initRetours() {
+            // Remplir les options de magasin
+            const magasinSelect = document.getElementById('search-magasin-retour');
+            magasinSelect.innerHTML = '<option value="">Tous</option>' + 
+                appData.magasins.map(m => `<option value="${m}">${m}</option>`).join('');
+            
+            // Bouton d'ajout de retour
+            document.getElementById('add-retour-btn').addEventListener('click', () => {
+                showRetourModal();
+            });
+            
+            // Bouton de recherche
+            document.getElementById('search-retours-btn').addEventListener('click', () => {
+                const filters = {
+                    dateRetour: document.getElementById('search-date-retour').value,
+                    magasin: document.getElementById('search-magasin-retour').value,
+                    designation: document.getElementById('search-designation-retour').value,
+                    responsable: document.getElementById('search-responsable-retour').value
+                };
+                refreshRetoursTable(filters);
+            });
+            
+            // Bouton de réinitialisation
+            document.getElementById('reset-search-retours-btn').addEventListener('click', () => {
+                document.querySelectorAll('#retours .search-form input, #retours .search-form select').forEach(el => {
+                    el.value = '';
+                });
+                refreshRetoursTable();
+            });
+            
+            // Gestion du formulaire de retour
+            document.getElementById('retour-form').addEventListener('submit', handleSaveRetour);
+            
+            // Bouton d'annulation
+            document.getElementById('cancel-retour-btn').addEventListener('click', hideModal);
+        }
+
+        function refreshRetoursTable(filter = {}) {
+            const tbody = document.querySelector('#retours-table tbody');
+            tbody.innerHTML = '';
+            
+            // Appliquer les filtres
+            let filteredRetours = [...appData.retours];
+            
+            if (filter.dateRetour) {
+                filteredRetours = filteredRetours.filter(r => r.dateRetour === filter.dateRetour);
+            }
+            
+            if (filter.magasin) {
+                filteredRetours = filteredRetours.filter(r => {
+                    const sortie = appData.sorties.find(s => s.id === r.sortieId);
+                    return sortie && sortie.magasin === filter.magasin;
+                });
+            }
+            
+            if (filter.designation) {
+                filteredRetours = filteredRetours.filter(r => {
+                    const sortie = appData.sorties.find(s => s.id === r.sortieId);
+                    return sortie && sortie.designation.toLowerCase().includes(filter.designation.toLowerCase());
+                });
+            }
+            
+            if (filter.responsable) {
+                filteredRetours = filteredRetours.filter(r => {
+                    const sortie = appData.sorties.find(s => s.id === r.sortieId);
+                    return sortie && sortie.responsable.toLowerCase().includes(filter.responsable.toLowerCase());
+                });
+            }
+            
+            // Trier par date de retour (du plus récent au plus ancien)
+            filteredRetours.sort((a, b) => new Date(b.dateRetour) - new Date(a.dateRetour));
+            
+            // Remplir le tableau
+            filteredRetours.forEach(retour => {
+                const sortie = appData.sorties.find(s => s.id === retour.sortieId);
+                if (!sortie) return;
+                
+                let statutClass = 'status-partiel';
+                if (retour.statut === 'clôturé') {
+                    statutClass = 'status-cloture';
+                }
+                
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${sortie.dateSortie}</td>
+                    <td>${retour.dateRetour}</td>
+                    <td>${sortie.magasin}</td>
+                    <td>${sortie.responsable}</td>
+                    <td>${sortie.designation}</td>
+                    <td>${sortie.quantite} ${sortie.unite}</td>
+                    <td>${retour.quantiteRetournee} ${sortie.unite}</td>
+                    <td>${retour.solde} ${sortie.unite}</td>
+                    <td>${retour.duree}</td>
+                    <td>${retour.bonLivraison}</td>
+                    <td><span class="${statutClass}">${retour.statut}</span></td>
+                    <td>
+                        <button class="edit-retour" data-id="${retour.id}">Modifier</button>
+                        <button class="delete-retour btn-danger" data-id="${retour.id}">Supprimer</button>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+            
+            // Ajouter les événements aux boutons
+            document.querySelectorAll('.edit-retour').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const retourId = parseInt(this.getAttribute('data-id'));
+                    showRetourModal(null, retourId);
+                });
+            });
+            
+            document.querySelectorAll('.delete-retour').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const retourId = parseInt(this.getAttribute('data-id'));
+                    if (confirm('Êtes-vous sûr de vouloir supprimer ce retour ?')) {
+                        deleteRetour(retourId);
+                    }
+                });
+            });
+        }
+
+        function deleteRetour(retourId) {
+            const index = appData.retours.findIndex(r => r.id === retourId);
+            if (index !== -1) {
+                const retour = appData.retours[index];
+                
+                // Mettre à jour le statut de la sortie associée
+                const sortieIndex = appData.sorties.findIndex(s => s.id === retour.sortieId);
+                if (sortieIndex !== -1) {
+                    // Vérifier s'il reste d'autres retours pour cette sortie
+                    const autresRetours = appData.retours.filter(r => 
+                        r.sortieId === retour.sortieId && r.id !== retour.id);
+                    
+                    if (autresRetours.length > 0) {
+                        const totalRetourne = autresRetours.reduce((sum, r) => sum + r.quantiteRetournee, 0);
+                        const sortie = appData.sorties[sortieIndex];
+                        appData.sorties[sortieIndex].statut = 
+                            totalRetourne === sortie.quantite ? 'clôturé' : 'partiel';
+                    } else {
+                        appData.sorties[sortieIndex].statut = 'en cours';
+                    }
+                }
+                
+                // Supprimer le retour
+                appData.retours.splice(index, 1);
+                
+                saveData();
+                refreshRetoursTable();
+                refreshSortiesTable();
+                refreshEtatTable();
+                refreshDashboard();
+            }
+        }
+
+        function showRetourModal(sortieId = null, retourId = null) {
+            const modal = document.getElementById('retour-modal');
+            const backdrop = document.getElementById('modal-backdrop');
+            const title = document.getElementById('retour-modal-title');
+            const form = document.getElementById('retour-form');
+            const sortieSelect = document.getElementById('modal-sortie-id');
+            
+            // Remplir le select des sorties
+            sortieSelect.innerHTML = '<option value="">Sélectionner une sortie</option>' +
+                appData.sorties
+                    .filter(s => s.statut !== 'clôturé')
+                    .map(s => `<option value="${s.id}">${s.designation} (${s.bonSortie})</option>`)
+                    .join('');
+            
+            if (retourId) {
+                // Mode édition
+                title.textContent = 'Modifier le Retour';
+                const retour = appData.retours.find(r => r.id === retourId);
+                
+                if (retour) {
+                    document.getElementById('retour-id').value = retour.id;
+                    document.getElementById('modal-sortie-id').value = retour.sortieId;
+                    document.getElementById('modal-date-retour').value = retour.dateRetour;
+                    document.getElementById('modal-bon-livraison').value = retour.bonLivraison;
+                    document.getElementById('modal-quantite-retour').value = retour.quantiteRetournee;
+                    document.getElementById('modal-remarques').value = retour.remarques || '';
+                    document.getElementById('modal-controleur-retour').value = retour.controleurReception;
+                }
+            } else if (sortieId) {
+                // Mode ajout avec sortie pré-sélectionnée
+                title.textContent = 'Ajouter un Retour';
+                form.reset();
+                document.getElementById('retour-id').value = '';
+                document.getElementById('modal-sortie-id').value = sortieId;
+                document.getElementById('modal-date-retour').value = new Date().toISOString().split('T')[0];
+                
+                // Pré-remplir la quantité avec la quantité restante
+                const sortie = appData.sorties.find(s => s.id === sortieId);
+                if (sortie) {
+                    const retoursAssocies = appData.retours.filter(r => r.sortieId === sortieId);
+                    const totalRetourne = retoursAssocies.reduce((sum, r) => sum + r.quantiteRetournee, 0);
+                    const reste = sortie.quantite - totalRetourne;
+                    
+                    document.getElementById('modal-quantite-retour').value = reste;
+                }
+            } else {
+                // Mode ajout normal
+                title.textContent = 'Ajouter un Retour';
+                form.reset();
+                document.getElementById('retour-id').value = '';
+                document.getElementById('modal-date-retour').value = new Date().toISOString().split('T')[0];
+            }
+            
+            // Afficher le modal
+            modal.style.display = 'block';
+            backdrop.style.display = 'block';
+        }
+
+        function handleSaveRetour(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const retourId = form.querySelector('#retour-id').value;
+            const isEdit = !!retourId;
+            
+            const sortieId = parseInt(form.querySelector('#modal-sortie-id').value);
+            const sortie = appData.sorties.find(s => s.id === sortieId);
+            
+            if (!sortie) {
+                alert('Veuillez sélectionner une sortie valide');
+                return;
+            }
+            
+            const quantiteRetournee = parseInt(form.querySelector('#modal-quantite-retour').value);
+            
+            // Vérifier que la quantité retournée ne dépasse pas la quantité sortie
+            const retoursAssocies = appData.retours.filter(r => r.sortieId === sortieId && (!isEdit || r.id !== parseInt(retourId)));
+            const totalRetourne = retoursAssocies.reduce((sum, r) => sum + r.quantiteRetournee, 0);
+            
+            if (quantiteRetournee + totalRetourne > sortie.quantite) {
+                alert(`La quantité totale retournée (${quantiteRetournee + totalRetourne}) dépasse la quantité sortie (${sortie.quantite})`);
+                return;
+            }
+            
+            const retourData = {
+                sortieId: sortieId,
+                dateRetour: form.querySelector('#modal-date-retour').value,
+                bonLivraison: form.querySelector('#modal-bon-livraison').value,
+                quantiteRetournee: quantiteRetournee,
+                solde: sortie.quantite - (totalRetourne + quantiteRetournee),
+                duree: Math.floor((new Date(form.querySelector('#modal-date-retour').value) - new Date(sortie.dateSortie)) / (1000 * 60 * 60 * 24)),
+                remarques: form.querySelector('#modal-remarques').value,
+                controleurReception: form.querySelector('#modal-controleur-retour').value,
+                statut: (totalRetourne + quantiteRetournee) === sortie.quantite ? 'clôturé' : 'partiel'
+            };
+            
+            if (isEdit) {
+                // Mise à jour du retour existant
+                const index = appData.retours.findIndex(r => r.id === parseInt(retourId));
+                if (index !== -1) {
+                    appData.retours[index] = { ...appData.retours[index], ...retourData };
+                }
+            } else {
+                // Ajout d'un nouveau retour
+                const newId = appData.retours.length > 0 ? 
+                    Math.max(...appData.retours.map(r => r.id)) + 1 : 1;
+                
+                const newRetour = {
+                    id: newId,
+                    ...retourData
+                };
+                
+                appData.retours.push(newRetour);
+                
+                // Ajouter à l'historique des activités
+                appData.activites.unshift({
+                    date: newRetour.dateRetour,
+                    type: 'retour',
+                    designation: sortie.designation,
+                    quantite: newRetour.quantiteRetournee,
+                    responsable: newRetour.controleurReception,
+                    details: `Retour de ${newRetour.quantiteRetournee} ${sortie.unite}`
+                });
+            }
+            
+            // Mettre à jour le statut de la sortie associée
+            const sortieIndex = appData.sorties.findIndex(s => s.id === sortieId);
+            if (sortieIndex !== -1) {
+                appData.sorties[sortieIndex].statut = retourData.statut;
+            }
+            
+            saveData();
+            refreshRetoursTable();
+            refreshSortiesTable();
+            refreshDashboard();
+            refreshEtatTable();
+            hideModal();
+        }
+
+        // Fonctions pour l'état des articles
+        function initEtat() {
+            // Remplir les options de magasin
+            const magasinSelect = document.getElementById('filter-magasin-etat');
+            magasinSelect.innerHTML = '<option value="">Tous</option>' + 
+                appData.magasins.map(m => `<option value="${m}">${m}</option>`).join('');
+            
+            // Bouton d'application des filtres
+            document.getElementById('apply-filters-btn').addEventListener('click', () => {
+                refreshEtatTable();
+            });
+            
+            // Bouton de réinitialisation
+            document.getElementById('reset-filters-btn').addEventListener('click', () => {
+                document.querySelectorAll('#etat .search-form input, #etat .search-form select').forEach(el => {
+                    el.value = '';
+                });
+                refreshEtatTable();
+            });
+        }
+
+        function refreshEtatTable() {
+            const tbody = document.querySelector('#etat-table tbody');
+            tbody.innerHTML = '';
+            
+            // Récupérer les filtres
+            const magasin = document.getElementById('filter-magasin-etat').value;
+            const responsable = document.getElementById('filter-responsable-etat').value;
+            const statut = document.getElementById('filter-statut-etat').value;
+            const mois = document.getElementById('filter-mois-etat').value;
+            const dateDebut = document.getElementById('filter-date-debut').value;
+            const dateFin = document.getElementById('filter-date-fin').value;
+            const duree = document.getElementById('filter-duree-etat').value;
+            
+            // Filtrer les sorties
+            let filteredSorties = appData.sorties.filter(s => {
+                // Exclure les sorties clôturées
+                if (s.statut === 'clôturé') return false;
+                
+                // Appliquer les filtres
+                if (magasin && s.magasin !== magasin) return false;
+                
+                if (responsable && !s.responsable.toLowerCase().includes(responsable.toLowerCase())) return false;
+                
+                if (statut && s.statut !== statut) return false;
+                
+                // Filtrer par mois
+                if (mois) {
+                    const dateSortie = new Date(s.dateSortie);
+                    if ((dateSortie.getMonth() + 1) !== parseInt(mois)) return false;
+                }
+                
+                // Filtrer par période
+                if (dateDebut && new Date(s.dateSortie) < new Date(dateDebut)) return false;
+                if (dateFin && new Date(s.dateSortie) > new Date(dateFin)) return false;
+                
+                // Filtrer par durée
+                if (duree) {
+                    const derniereDateRetour = appData.retours
+                        .filter(r => r.sortieId === s.id)
+                        .reduce((max, r) => {
+                            const date = new Date(r.dateRetour);
+                            return date > max ? date : max;
+                        }, new Date(0));
+                    
+                    const joursEcoules = derniereDateRetour.getTime() > 0 ? 
+                        Math.floor((derniereDateRetour - new Date(s.dateSortie)) / (1000 * 60 * 60 * 24)) :
+                        Math.floor((new Date() - new Date(s.dateSortie)) / (1000 * 60 * 60 * 24));
+                    
+                    if (duree === '7' && joursEcoules >= 7) return false;
+                    if (duree === '30' && joursEcoules >= 30) return false;
+                    if (duree === '90' && joursEcoules >= 90) return false;
+                    if (duree === '90+' && joursEcoules < 90) return false;
+                }
+                
+                return true;
+            });
+            
+            // Trier par date de sortie (du plus ancien au plus récent)
+            filteredSorties.sort((a, b) => new Date(a.dateSortie) - new Date(b.dateSortie));
+            
+            // Remplir le tableau
+            filteredSorties.forEach(sortie => {
+                const retoursAssocies = appData.retours.filter(r => r.sortieId === sortie.id);
+                const totalRetourne = retoursAssocies.reduce((sum, r) => sum + r.quantiteRetournee, 0);
+                const solde = sortie.quantite - totalRetourne;
+                const derniereDateRetour = retoursAssocies.length > 0 ? 
+                    Math.max(...retoursAssocies.map(r => new Date(r.dateRetour))) : null;
+                
+                const dureeJours = derniereDateRetour ? 
+                    Math.floor((derniereDateRetour - new Date(sortie.dateSortie)) / (1000 * 60 * 60 * 24)) :
+                    Math.floor((new Date() - new Date(sortie.dateSortie)) / (1000 * 60 * 60 * 24));
+                
+                let statutClass = 'status-en-cours';
+                if (totalRetourne > 0) {
+                    statutClass = 'status-partiel';
+                }
+                
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${sortie.dateSortie}</td>
+                    <td>${sortie.magasin}</td>
+                    <td>${sortie.responsable}</td>
+                    <td>${sortie.designation}</td>
+                    <td>${sortie.reference}</td>
+                    <td>${sortie.quantite} ${sortie.unite}</td>
+                    <td>${totalRetourne} ${sortie.unite}</td>
+                    <td>${solde} ${sortie.unite}</td>
+                    <td>${dureeJours}</td>
+                    <td>${sortie.destination}</td>
+                    <td><span class="${statutClass}">${totalRetourne > 0 ? 'partiel' : 'en cours'}</span></td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // Fonctions pour l'administration
+        function initAdmin() {
+            // Bouton d'ajout d'utilisateur
+            document.getElementById('add-user-btn').addEventListener('click', () => {
+                showUserModal();
+            });
+            
+            // Gestion du formulaire d'utilisateur
+            document.getElementById('user-form').addEventListener('submit', handleSaveUser);
+            
+            // Bouton d'annulation
+            document.getElementById('cancel-user-btn').addEventListener('click', hideModal);
+        }
+
+        function refreshUsersTable() {
+            const tbody = document.querySelector('#users-table tbody');
+            tbody.innerHTML = '';
+            
+            appData.users.forEach(user => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${user.username}</td>
+                    <td>${user.role === 'admin' ? 'Administrateur' : 'Utilisateur'}</td>
+                    <td>${user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Jamais'}</td>
+                    <td>
+                        <button class="edit-user" data-id="${user.id}">Modifier</button>
+                        ${user.id !== appData.currentUser.id ? 
+                            `<button class="delete-user btn-danger" data-id="${user.id}">Supprimer</button>` : ''}
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+            
+            // Ajouter les événements aux boutons
+            document.querySelectorAll('.edit-user').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const userId = parseInt(this.getAttribute('data-id'));
+                    showUserModal(userId);
+                });
+            });
+            
+            document.querySelectorAll('.delete-user').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const userId = parseInt(this.getAttribute('data-id'));
+                    if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
+                        deleteUser(userId);
+                    }
+                });
+            });
+        }
+
+        function showUserModal(userId = null) {
+            const modal = document.getElementById('user-modal');
+            const backdrop = document.getElementById('modal-backdrop');
+            const title = document.getElementById('user-modal-title');
+            const form = document.getElementById('user-form');
+            
+            if (userId) {
+                // Mode édition
+                title.textContent = 'Modifier l\'Utilisateur';
+                const user = appData.users.find(u => u.id === userId);
+                
+                if (user) {
+                    document.getElementById('user-id').value = user.id;
+                    document.getElementById('modal-username').value = user.username;
+                    document.getElementById('modal-password').value = '';
+                    document.getElementById('modal-role').value = user.role;
+                }
+            } else {
+                // Mode ajout
+                title.textContent = 'Ajouter un Utilisateur';
+                form.reset();
+                document.getElementById('user-id').value = '';
+            }
+            
+            // Afficher le modal
+            modal.style.display = 'block';
+            backdrop.style.display = 'block';
+        }
+
+        function handleSaveUser(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const userId = form.querySelector('#user-id').value;
+            const isEdit = !!userId;
+            
+            const username = form.querySelector('#modal-username').value;
+            const password = form.querySelector('#modal-password').value;
+            const role = form.querySelector('#modal-role').value;
+            
+            // Validation
+            if (!username) {
+                alert('Le nom d\'utilisateur est requis');
+                return;
+            }
+            
+            if (!isEdit && !password) {
+                alert('Le mot de passe est requis pour un nouvel utilisateur');
+                return;
+            }
+            
+            // Vérifier que le nom d'utilisateur est unique
+            const usernameExists = appData.users.some(u => 
+                u.username.toLowerCase() === username.toLowerCase() && 
+                (!isEdit || u.id !== parseInt(userId)));
+            
+            if (usernameExists) {
+                alert('Ce nom d\'utilisateur est déjà utilisé');
+                return;
+            }
+            
+            if (isEdit) {
+                // Mise à jour de l'utilisateur existant
+                const index = appData.users.findIndex(u => u.id === parseInt(userId));
+                if (index !== -1) {
+                    const updatedUser = {
+                        ...appData.users[index],
+                        username,
+                        role
+                    };
+                    
+                    // Mettre à jour le mot de passe seulement s'il a été saisi
+                    if (password) {
+                        updatedUser.password = password;
+                    }
+                    
+                    appData.users[index] = updatedUser;
+                }
+            } else {
+                // Ajout d'un nouvel utilisateur
+                const newId = appData.users.length > 0 ? 
+                    Math.max(...appData.users.map(u => u.id)) + 1 : 1;
+                
+                const newUser = {
+                    id: newId,
+                    username,
+                    password,
+                    role,
+                    lastLogin: null
+                };
+                
+                appData.users.push(newUser);
+            }
+            
+            saveData();
+            refreshUsersTable();
+            hideModal();
+        }
+
+        function deleteUser(userId) {
+            const index = appData.users.findIndex(u => u.id === userId);
+            if (index !== -1) {
+                appData.users.splice(index, 1);
+                saveData();
+                refreshUsersTable();
+            }
+        }
+
+        // Fonctions utilitaires
+        function hideModal() {
+            document.getElementById('modal-backdrop').style.display = 'none';
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.style.display = 'none';
+            });
+        }
+
+        function showError(message) {
+            alert(message);
+        }
+    </script>
+</body>
+</html>
